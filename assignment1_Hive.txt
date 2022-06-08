@@ -1,0 +1,69 @@
+Txn_dt : String
+Custno : String
+Age : String
+Zipcode : String
+Category : String
+Product : String
+Qty : Int
+Cost : bigint
+Sales : bigint
+
+Row format delimited
+Fields terminated by ‘\;’
+
+
+1)Count of unique customers and total sales for each age group and for a given month = Jan
+
+select age, count(distinct custno) from retail group by age having month(txn_dt) = 1;
+
+2) Count of unique customers and total sales for one age group(A) for all products - [ sort data on totalsales desc- find top 10]
+
+	ProdA	count of unique cust	total sales
+	ProdB	‘’					‘’
+
+Hint : where trim(age)  = 'A'
+select count(distinct custno) ,sum(sales) as totalsales  from retail where age='A' order by totalsales desc ;
+
+
+3) Area wise sales 
+select zipcode, sum(sales) from retail group by zipcode limit 10;
+
+insert overwrite directory '/user/bigdatamind43833/ans' row format delimited fields terminated by  ',' select zipcode, sum(sales) from retail group by zipcode limit 10;
+
+A       2344440                                                                                                                                                         
+B       2799090                                                                                                                                                         
+C       9866326                                                                                                                                                         
+D       5447881                                                                                                                                                         
+E       37994770                                                                                                                                                        
+F       31548341                                                                                                                                                        
+G       12593633                                                                                                                                                        
+H       5245595   
+
+4) find top 10 viable products (prod which give highest profit)
+select product, (sales-cost) as profit from retail order by profit desc limit 10;
+
+4711588210441   12000                                                                                                                                                   
+4716859000851   3600                                                                                                                                                    
+8712045000151   2717                                                                                                                                                    
+8712045000151   2717                                                                                                                                                    
+20570477        2716                                                                                                                                                    
+7610053910800   2664                                                                                                                                                    
+20549817        2648                                                                                                                                                    
+4714008270605   2600                                                                                                                                                    
+4710628119010   2264                                                                                                                                                    
+4710628131012   2243 
+
+5) find all loss making products – Display all the loss making products from highest loss to the least
+
+select product, (sales-cost) as loss from retail ;
+
+select product , loss from (select (sales-cost) as loss from retail where loss<0) order by loss asc; 
+
+select product,loss from retail where loss in(select (sales-cost) as loss from retail where loss<0 order by loss asc)
+
+
+
+
+
+
+
